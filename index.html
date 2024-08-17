@@ -1,0 +1,26 @@
+<html>
+    <head>
+        <title></title>
+    </head>
+    
+    <body>
+        <p>server time: $(get_server_timestamp())</p>
+        <foreach {title, content} in $posts>
+            <h1>hello $title</h1>
+            <p>hello $content</p>
+        </foreach>
+    </body>
+
+    <script lang=c on=server>
+        #include <time.h>
+
+        <client>
+        int get_server_timestamp() {
+            return time(NULL);
+        }
+    </script>
+
+    <!-- on=client implied -->
+    <script lang=c>
+    </script>
+</html>
