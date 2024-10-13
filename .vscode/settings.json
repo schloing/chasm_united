@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "microhttpd.h": "c",
+        "httpserver.h": "c",
+        "civetweb.h": "c",
+        "unistd.h": "c",
+        "random": "c",
+        "mongoose.h": "c"
+    }
+}
