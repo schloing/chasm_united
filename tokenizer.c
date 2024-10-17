@@ -1,54 +1,57 @@
-// tokenizer for template engine
-
+#include <assert.h>
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "tokenizer.h"
 
-ccalculus compiler = { 0 };
+static Tokenizer* tokenizer;
+// forwards
+static Token next_token         ();
+static void  advance_buffer     ();
+static void  advance_characters ();
+static void  read_literal       (Token* token);
 
-bool is_invalid(char ch) {
-    return isspace(ch);
-}
+struct {
+    struct {
+        int row;
+        int col;
+    } pos;
+} compiler;
 
-void advance_buffer() {
-    compiler.tokenizer->active = getc(compiler.buffer);
+#define TOKENIZER_ACTIVE_CHAR *tokenizer->active
+
+static void advance_buffer() {
+    tokenizer->active++;
     compiler.pos.row++;
 }
 
-void skip_whitespace(Tokenizer* tokenizer) {
-    while (isspace(tokenizer->active))
-        advance_buffer();
+static void advance_characters() {
+    while (isspace(TOKENIZER_ACTIVE_CHAR))
+        advance_buffer(tokenizer);
 }
 
-void advance_characters(Tokenizer* tokenizer) {
-    do { advance_buffer(tokenizer); }
-    while (is_invalid(tokenizer->active));
-}
-
-void read_identifier(Tokenizer* tokenizer, Token* token) {
+static void read_identifier(Token* token) {
     size_t i = 0;
 
-    while (isalpha(tokenizer->active)) {
-        token->value[i++] = tokenizer->active;
+    while (isalpha(TOKENIZER_ACTIVE_CHAR)) {
+        token->value[i++] = TOKENIZER_ACTIVE_CHAR;
         advance_buffer(tokenizer);
     }
 
     token->value[i] = '\0';
 }
 
-Token next_token(Tokenizer* tokenizer) {
+static Token next_token() {
     Token token = { 0 };
 
-    skip_whitespace(tokenizer);
+    advance_characters(tokenizer);
 
-    token.value[0] = tokenizer->active;
+    token.value[0] = TOKENIZER_ACTIVE_CHAR;
     token.value[1] = 0;
 
-    switch (tokenizer->active) {
+    switch (TOKENIZER_ACTIVE_CHAR) {
         case '(':
             token.type = TOKEN_LROUND;
             break;
@@ -107,10 +110,10 @@ Token next_token(Tokenizer* tokenizer) {
             break;
 
         default:
-            if (!isalpha(tokenizer->active)) break;
+            if (!isalpha(TOKENIZER_ACTIVE_CHAR)) break;
 
             token.type = TOKEN_LITERAL;
-            read_identifier(tokenizer, &token);
+            read_identifier(&token);
 
             return token;
     }
@@ -120,48 +123,17 @@ Token next_token(Tokenizer* tokenizer) {
     return token;
 }
 
-void argparse(int argc, char** argv) {
-    char* argname;
-    char* argval;
-
-    for (int i = 1; i < argc; i++) {
-        argname = argv[i];
-        argval = argv[++i];
-
-        if (strcmp(argname, "-o") == 0) {
-            compiler.flags |= OUTFILE;
-            compiler.outname = argval; 
-        }
-        else
-        if (strcmp(argname, "-s") == 0) {
-            // currently source file needs to be appended
-            // after this flag, will fix later because this is dumb as fuck
-            compiler.flags |= INFILE;
-            compiler.buffname = argval;
-        }
-    }
-
-    // TODO: finish this
-    if (compiler.flags & INFILE == 0)
-        fprintf(stderr, "no source provided with -s\n");
-}
-
-int main(int argc, char** argv) {
-    if (argc < 2) {
-        fprintf(stderr, "usage: cc2 -s [source] -o [out]\n");
-        fprintf(stderr, "expected argument, received none\n");
-        return -1;
-    }
-
-    argparse(argc, argv);
-
-    compiler.buffer = fopen(compiler.buffname, "rb");
-    compiler.tokenizer = &(Tokenizer) { 0 };
+void thicc_tokenize_source(char* source) {
+    assert(tokenizer);
+    
+    Tokenizer tok = { 0 };
+    tokenizer = &tok;
+    tokenizer->tokens = new_vector(sizeof(Token) * 128);
 
     Token token;
-    while ((token = next_token(compiler.tokenizer)).type != TOKEN_EOF)
-        printf("%s\n", token.value);
-
-    fclose(compiler.buffer);
-    return 0;
+    for (tokenizer->active = source; tokenizer->active != 0; tokenizer->active++) {
+        if (TOKENIZER_ACTIVE_CHAR == '\0') return;
+        token = next_token(tokenizer);
+        push_vector(tokenizer->tokens, &token);
+    }
 }

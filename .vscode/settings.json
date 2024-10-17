@@ -5,6 +5,7 @@
         "civetweb.h": "c",
         "unistd.h": "c",
         "random": "c",
-        "mongoose.h": "c"
+        "mongoose.h": "c",
+        "stdlib.h": "c"
     }
 }

@@ -26,12 +26,7 @@ void ev_handler(struct mg_connection* c, int ev, void* ev_data) {
             c->recv.len = 0;
 
             // mark connection as initialised for sse
-            c->data[CONNECTION_SSE_LOCATION] = CONNECTION_SSE_MAGIC;
-
-            for(int i2 = 0; i2 < 10; i2++) {
-                mg_printf(c, "data: update title %d null\n\n", i2);
-                c->recv.len = 0;
-            }
+            c->data[CONNECTION_SSE_LOCATION] = CONNECTION_SSE_MAGIC;        
         }
         else {
             struct mg_http_serve_opts opts = { .root_dir = "./web/" };
@@ -54,13 +49,13 @@ void sse_keepalive(void* data) {
 #define SERVER_HOST_URL        "http://0.0.0.0:8000"
 #define HTTP_POLL_FREQ_MS      1000
 #define KEEPALIVE_POLL_FREQ_MS 5000
-// KEEPALIVE_POLL_FREQ_MS must be >= HTTP_POLL_REQ_MS
+// KEEPALIVE_POLL_FREQ_MS must be >= HTTP_POLL_FREQ_MS
 
 int main() {
     struct mg_mgr mgr;
     
     mg_mgr_init(&mgr);
-    mg_http_listen(&mgr, "http://0.0.0.0:8000", ev_handler, NULL);
+    mg_http_listen(&mgr, SERVER_HOST_URL, ev_handler, NULL);
     mg_timer_add(&mgr, KEEPALIVE_POLL_FREQ_MS, MG_TIMER_REPEAT, sse_keepalive, (void*)&mgr);
 
     for (;;)
