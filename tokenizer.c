@@ -123,7 +123,7 @@ static Token next_token() {
     return token;
 }
 
-void thicc_tokenize_source(char* source) {
+void tokenize_source(char* source) {
     assert(tokenizer);
     
     Tokenizer tok = { 0 };

@@ -1,13 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>chasm template</title>
-</head>
-<body>
-    <h1>normal html</h1>
-</body>
-<script lang="c" src="src/client.c"></script>
-<script lang="js" src="src/client.js"></script>
-</html>
+<!-- content in this tag is for the compiler -->
+<h1>todos:</h1>
+
+<% for (int i = 0; i < length(&todos); i++) { %>
+    <p><%= todos[i].todo %></p>
+<% } $>
+
+<script src="src/client.js"></script>

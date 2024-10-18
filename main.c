@@ -26,7 +26,7 @@ void ev_handler(struct mg_connection* c, int ev, void* ev_data) {
             c->recv.len = 0;
 
             // mark connection as initialised for sse
-            c->data[CONNECTION_SSE_LOCATION] = CONNECTION_SSE_MAGIC;        
+            c->data[CONNECTION_SSE_LOCATION] = CONNECTION_SSE_MAGIC;
         }
         else {
             struct mg_http_serve_opts opts = { .root_dir = "./web/" };

@@ -61,6 +61,6 @@ typedef struct {
     TokenType type;
 } Token;
 
-void thicc_tokenize_source(char* source);
+void tokenize_source(char* source);
 
 #endif
